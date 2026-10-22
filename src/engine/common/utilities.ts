@@ -15,7 +15,10 @@ export function setKeyToIds(key: string): string[] {
   return key.split(",");
 }
 
-export function formatIdSet(labels: Map<string, string>, ids: Iterable<string>): string {
+export function formatIdSet(
+  labels: Map<string, string>,
+  ids: Iterable<string>,
+): string {
   const parts = [...new Set(ids)].map((id) => labels.get(id) ?? id).sort();
   return `{${parts.join(",")}}`;
 }

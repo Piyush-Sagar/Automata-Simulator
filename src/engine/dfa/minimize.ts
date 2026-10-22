@@ -1,4 +1,6 @@
 import type { DFA, DFATransition, State } from "../types";
+import { validateDFA } from "./validate";
+import { createId } from "../common/utilities";
 
 export interface PartitionStep {
   partitions: string[][]; // Array of state ID arrays
@@ -13,6 +15,55 @@ export interface MinimizationTrace {
 export function minimizeDFA(
   dfa: DFA,
 ): { dfa: DFA; trace: MinimizationTrace } | { error: string } {
+  const errors = validateDFA(dfa);
+  if (errors.length) return { error: errors.map((e) => e.message).join("\n") };
+  if (dfa.states.length > 512 || dfa.transitions.length > 10000)
+    return {
+      error: "Minimization budget is 512 states and 10000 transitions.",
+    };
+  // Complete partial machines before refinement, so a missing edge and an
+  // explicit rejecting sink have the same language semantics.
+  const sink = createId("sink");
+  const key = (from: string, symbol: string) => JSON.stringify([from, symbol]);
+  const originalTable = new Set(
+    dfa.transitions.map((t) => key(t.from, t.symbol)),
+  );
+  const added: DFATransition[] = [];
+  for (const s of dfa.states)
+    for (const symbol of dfa.alphabet) {
+      if (!originalTable.has(key(s.id, symbol)))
+        added.push({ id: createId("sink-edge"), from: s.id, to: sink, symbol });
+    }
+  if (added.length && dfa.states.length >= 512)
+    return {
+      error: "Completing this machine would exceed the 512-state budget.",
+    };
+  if (added.length)
+    dfa = {
+      ...dfa,
+      states: [
+        ...dfa.states,
+        {
+          id: sink,
+          label: "Sink",
+          x: 0,
+          y: 0,
+          isStart: false,
+          isAccept: false,
+        },
+      ],
+      transitions: [
+        ...dfa.transitions,
+        ...added,
+        ...dfa.alphabet.map((symbol) => ({
+          id: createId("sink-edge"),
+          from: sink,
+          to: sink,
+          symbol,
+        })),
+      ],
+    };
+  const table = new Map(dfa.transitions.map((t) => [key(t.from, t.symbol), t]));
   if (!dfa.startState) {
     return { error: "DFA has no start state." };
   }
@@ -34,10 +85,14 @@ export function minimizeDFA(
   }
 
   const reachableStates = Array.from(reachable).sort();
-  
+
   // 2. Initialize partitions P = { F, Q \ F }
-  const acceptPartition = reachableStates.filter((s) => dfa.acceptStates.includes(s));
-  const nonAcceptPartition = reachableStates.filter((s) => !dfa.acceptStates.includes(s));
+  const acceptPartition = reachableStates.filter((s) =>
+    dfa.acceptStates.includes(s),
+  );
+  const nonAcceptPartition = reachableStates.filter(
+    (s) => !dfa.acceptStates.includes(s),
+  );
 
   let partitions: string[][] = [];
   if (acceptPartition.length > 0) partitions.push(acceptPartition);
@@ -52,6 +107,9 @@ export function minimizeDFA(
 
   let changed = true;
   while (changed) {
+    const partitionIndex = new Map(
+      partitions.flatMap((p, i) => p.map((id) => [id, i] as const)),
+    );
     changed = false;
     const newPartitions: string[][] = [];
 
@@ -63,11 +121,9 @@ export function minimizeDFA(
 
       for (const state of partition) {
         const sigArray = dfa.alphabet.map((symbol) => {
-          const t = dfa.transitions.find(
-            (t) => t.from === state && t.symbol === symbol,
-          );
+          const t = table.get(key(state, symbol));
           if (!t) return "-1"; // Transition to dead state
-          return getPartitionIndex(t.to, partitions).toString();
+          return String(partitionIndex.get(t.to) ?? -1);
         });
         const signature = sigArray.join(",");
         if (!signatureMap.has(signature)) {
@@ -125,19 +181,19 @@ export function minimizeDFA(
     const repState = partition[0]; // Representative state
 
     for (const symbol of dfa.alphabet) {
-      const t = dfa.transitions.find((t) => t.from === repState && t.symbol === symbol);
+      const t = table.get(key(repState, symbol));
       if (t && reachable.has(t.to)) {
         const toPartitionIndex = getPartitionIndex(t.to, partitions);
         const toStateId = `M${toPartitionIndex}`;
-        const key = `M${i}::${symbol}`;
-        if (!seenTransitions.has(key)) {
+        const seenKey = `M${i}::${symbol}`;
+        if (!seenTransitions.has(seenKey)) {
           minTransitions.push({
-            id: crypto.randomUUID(),
+            id: createId("min-edge"),
             from: `M${i}`,
             to: toStateId,
             symbol,
           });
-          seenTransitions.add(key);
+          seenTransitions.add(seenKey);
         }
       }
     }
@@ -145,7 +201,7 @@ export function minimizeDFA(
 
   return {
     dfa: {
-      id: crypto.randomUUID(),
+      id: createId("min"),
       name: `Minimized ${dfa.name}`,
       type: "DFA",
       states: minStates,

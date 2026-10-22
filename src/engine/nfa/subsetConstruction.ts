@@ -1,5 +1,15 @@
-import { EPSILON, type DFA, type DFATransition, type ENFA, type NFA, type State, startStateOf } from "../types";
-import { epsilonClosure } from "./epsilonClosure";
+import {
+  EPSILON,
+  type DFA,
+  type DFATransition,
+  type ENFA,
+  type NFA,
+  type State,
+  startStateOf,
+} from "../types";
+import { createEpsilonClosure } from "./epsilonClosure";
+import { validateNFA } from "./validate";
+import { createId } from "../common/utilities";
 
 export interface SubsetConstructionTrace {
   mapping: Map<string, string[]>; // DFA state ID -> Original NFA state IDs
@@ -8,25 +18,35 @@ export interface SubsetConstructionTrace {
 export function subsetConstruction(
   nfa: NFA | ENFA,
 ): { dfa: DFA; trace: SubsetConstructionTrace } | { error: string } {
+  const errors = validateNFA(nfa);
+  if (errors.length) return { error: errors.map((e) => e.message).join("\n") };
   const start = startStateOf(nfa);
   if (!start) {
     return { error: "NFA has no start state." };
   }
 
   const alphabet = nfa.alphabet.filter((sym) => sym !== EPSILON);
+  const closure = createEpsilonClosure(nfa);
+  const table = new Map<string, string[]>();
+  for (const t of nfa.transitions) {
+    const key = JSON.stringify([t.from, t.symbol]);
+    const targets = table.get(key) ?? [];
+    targets.push(t.to);
+    table.set(key, targets);
+  }
 
   const dfaStates: State[] = [];
   const dfaTransitions: DFATransition[] = [];
   const dfaAcceptStates: string[] = [];
-  
+
   const stateSets = new Map<string, string[]>(); // Canonical set string -> original NFA state IDs array
   const stateMap = new Map<string, string>(); // Canonical set string -> DFA state ID
   const queue: string[][] = [];
 
   let stateCounter = 0;
-  
+
   function getCanonicalKey(states: string[] | Set<string>): string {
-    return Array.from(states).sort().join(",");
+    return JSON.stringify(Array.from(states).sort());
   }
 
   function addSubsetState(states: string[] | Set<string>): string {
@@ -37,7 +57,7 @@ export function subsetConstruction(
 
     const stateId = `D${stateCounter++}`;
     const stateArray = Array.from(states).sort();
-    
+
     stateSets.set(key, stateArray);
     stateMap.set(key, stateId);
 
@@ -60,10 +80,15 @@ export function subsetConstruction(
     return stateId;
   }
 
-  const initialClosure = epsilonClosure(nfa, [start.id]);
+  const initialClosure = closure([start.id]);
   const dfaStartStateId = addSubsetState(initialClosure);
 
   while (queue.length > 0) {
+    if (dfaStates.length > 512 || dfaTransitions.length > 10000)
+      return {
+        error:
+          "Subset construction exceeds the 512-state / 10000-transition budget.",
+      };
     const currentSubset = queue.shift()!;
     const currentCanonical = getCanonicalKey(currentSubset);
     const fromDfaId = stateMap.get(currentCanonical)!;
@@ -72,19 +97,15 @@ export function subsetConstruction(
       const nextStatesSet = new Set<string>();
 
       for (const state of currentSubset) {
-        const transitions = nfa.transitions.filter(
-          (t) => t.from === state && t.symbol === symbol,
-        );
-        for (const t of transitions) {
-          nextStatesSet.add(t.to);
-        }
+        for (const to of table.get(JSON.stringify([state, symbol])) ?? [])
+          nextStatesSet.add(to);
       }
 
-      const closedNextStates = epsilonClosure(nfa, nextStatesSet);
-      if (closedNextStates.size > 0) {
+      const closedNextStates = closure(nextStatesSet);
+      {
         const toDfaId = addSubsetState(closedNextStates);
         dfaTransitions.push({
-          id: crypto.randomUUID(),
+          id: createId("subset-edge"),
           from: fromDfaId,
           to: toDfaId,
           symbol,
@@ -100,7 +121,7 @@ export function subsetConstruction(
 
   return {
     dfa: {
-      id: crypto.randomUUID(),
+      id: createId("subset"),
       name: `DFA (from ${nfa.name})`,
       type: "DFA",
       states: dfaStates,

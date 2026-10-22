@@ -9,7 +9,29 @@ export interface ValidationError {
 
 export function validateStructure(automaton: BaseAutomaton): ValidationError[] {
   const errors: ValidationError[] = [];
+  if (!automaton.name.trim())
+    errors.push({ type: "empty-name", message: "The machine needs a name." });
   const stateIds = new Set(automaton.states.map((s) => s.id));
+  if (automaton.states.length > 512 || automaton.alphabet.length > 64)
+    errors.push({
+      type: "resource-limit",
+      message: "Machines are limited to 512 states and 64 input symbols.",
+    });
+  if (stateIds.size !== automaton.states.length)
+    errors.push({
+      type: "duplicate-state",
+      message: "State IDs must be unique.",
+    });
+  if (
+    new Set(automaton.states.map((s) => s.label)).size !==
+    automaton.states.length
+  )
+    errors.push({
+      type: "duplicate-label",
+      message: "State labels must be unique.",
+    });
+  if (automaton.states.some((s) => !s.label.trim()))
+    errors.push({ type: "empty-label", message: "Every state needs a label." });
 
   if (automaton.states.length === 0) {
     errors.push({
@@ -34,6 +56,11 @@ export function validateStructure(automaton: BaseAutomaton): ValidationError[] {
   }
 
   const flaggedStart = automaton.states.filter((s) => s.isStart);
+  if (automaton.startState && flaggedStart.length === 0)
+    errors.push({
+      type: "start-mismatch",
+      message: "The start state must also be marked with its start flag.",
+    });
   if (flaggedStart.length > 1) {
     errors.push({
       type: "multiple-start-flags",
@@ -82,6 +109,11 @@ export function validateAlphabet(automaton: BaseAutomaton): ValidationError[] {
   const errors: ValidationError[] = [];
   const seen = new Set<string>();
   for (const symbol of automaton.alphabet) {
+    if (Array.from(symbol).length !== 1 || symbol === "ε")
+      errors.push({
+        type: "invalid-symbol",
+        message: `Alphabet symbol '${symbol}' must be one Unicode character other than ε.`,
+      });
     if (symbol === "") {
       errors.push({
         type: "empty-alphabet-symbol",
@@ -105,7 +137,17 @@ export function checkTransitionEndpoints(
   transitions: Array<{ id: string; from: string; to: string }>,
 ): ValidationError[] {
   const errors: ValidationError[] = [];
+  if (transitions.length > 10000)
+    errors.push({
+      type: "resource-limit",
+      message: "Machines are limited to 10000 transitions.",
+    });
   const stateIds = new Set(automaton.states.map((s) => s.id));
+  if (new Set(transitions.map((t) => t.id)).size !== transitions.length)
+    errors.push({
+      type: "duplicate-transition",
+      message: "Transition IDs must be unique.",
+    });
   for (const t of transitions) {
     if (!stateIds.has(t.from)) {
       errors.push({

@@ -8,6 +8,7 @@ import {
   type SimulationResult,
 } from "../types";
 import { validateDFA } from "./validate";
+import { limitError } from "../common/limits";
 
 export interface DFAStep {
   step: number;
@@ -22,9 +23,7 @@ export function transitionKey(from: string, symbol: string): string {
   return `${from}::${symbol}`;
 }
 
-export function buildDFATransitionTable(
-  dfa: DFA,
-): Map<string, DFATransition> {
+export function buildDFATransitionTable(dfa: DFA): Map<string, DFATransition> {
   const table = new Map<string, DFATransition>();
   for (const t of dfa.transitions) {
     table.set(transitionKey(t.from, t.symbol), t);
@@ -57,14 +56,14 @@ export function simulateDFA(
     };
   }
 
-  if (input.length > limits.maxInputLength) {
+  const symbols = Array.from(input);
+  const limitProblem = limitError(input, dfa.alphabet, limits);
+  if (limitProblem)
     return {
-      status: "TIMEOUT",
+      status: symbols.length > limits.maxInputLength ? "TIMEOUT" : "ERROR",
       steps: [],
-      message: `Input length ${input.length} exceeds the configured maximum of ${limits.maxInputLength} symbols.`,
+      message: limitProblem,
     };
-  }
-
   const table = buildDFATransitionTable(dfa);
   const steps: DFAStep[] = [
     {
@@ -79,8 +78,14 @@ export function simulateDFA(
 
   let current = start.id;
 
-  for (let i = 0; i < input.length; i += 1) {
-    const symbol = input[i];
+  for (let i = 0; i < symbols.length; i += 1) {
+    if (i >= limits.maxSteps)
+      return {
+        status: "TIMEOUT",
+        steps,
+        message: "Step limit reached before the input was exhausted.",
+      };
+    const symbol = symbols[i];
     const transition = table.get(transitionKey(current, symbol));
 
     if (transition === undefined) {

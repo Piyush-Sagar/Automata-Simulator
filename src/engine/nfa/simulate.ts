@@ -7,7 +7,8 @@ import {
   type SimulationResult,
 } from "../types";
 import { validateNFA } from "./validate";
-import { epsilonClosure } from "./epsilonClosure";
+import { createEpsilonClosure } from "./epsilonClosure";
+import { limitError } from "../common/limits";
 
 export interface NFAStep {
   step: number;
@@ -43,17 +44,29 @@ export function simulateNFA(
     };
   }
 
-  if (input.length > limits.maxInputLength) {
+  const symbols = Array.from(input);
+  const limitProblem = limitError(input, nfa.alphabet, limits);
+  if (limitProblem)
     return {
-      status: "TIMEOUT",
+      status: symbols.length > limits.maxInputLength ? "TIMEOUT" : "ERROR",
       steps: [],
-      message: `Input length ${input.length} exceeds maximum of ${limits.maxInputLength}.`,
+      message: limitProblem,
     };
-  }
-
   // Initial closure
-  const initialClosure = Array.from(epsilonClosure(nfa, [start.id])).sort();
-  
+  const closure = createEpsilonClosure(nfa);
+  const table = new Map<string, typeof nfa.transitions>();
+  for (const t of nfa.transitions) {
+    const key = JSON.stringify([t.from, t.symbol]);
+    const list = table.get(key) ?? [];
+    list.push(t);
+    table.set(key, list);
+  }
+  const initialClosure = Array.from(closure([start.id])).sort();
+  const closureEdges = (states: string[]) =>
+    states.flatMap((id) =>
+      (table.get(JSON.stringify([id, "ε"])) ?? []).map((t) => t.id),
+    );
+
   const steps: NFAStep[] = [
     {
       step: 0,
@@ -61,21 +74,26 @@ export function simulateNFA(
       inputSymbol: null,
       inputIndex: -1,
       nextStates: initialClosure,
-      transitionIds: [],
+      transitionIds: closureEdges(initialClosure),
     },
   ];
 
   let currentStates = initialClosure;
+  let traceSize = initialClosure.length;
 
-  for (let i = 0; i < input.length; i += 1) {
-    const symbol = input[i];
+  for (let i = 0; i < symbols.length; i += 1) {
+    if (i >= limits.maxSteps)
+      return {
+        status: "TIMEOUT",
+        steps,
+        message: "Step limit reached before the input was exhausted.",
+      };
+    const symbol = symbols[i];
     const nextStatesSet = new Set<string>();
     const transitionIds = new Set<string>();
 
     for (const state of currentStates) {
-      const transitions = nfa.transitions.filter(
-        (t) => t.from === state && t.symbol === symbol,
-      );
+      const transitions = table.get(JSON.stringify([state, symbol])) ?? [];
       for (const t of transitions) {
         nextStatesSet.add(t.to);
         transitionIds.add(t.id);
@@ -83,7 +101,15 @@ export function simulateNFA(
     }
 
     // Apply epsilon closure on the resulting states
-    const closedNextStates = Array.from(epsilonClosure(nfa, nextStatesSet)).sort();
+    const closedNextStates = Array.from(closure(nextStatesSet)).sort();
+    for (const id of closureEdges(closedNextStates)) transitionIds.add(id);
+    traceSize += closedNextStates.length + transitionIds.size;
+    if (traceSize > 2_000_000)
+      return {
+        status: "TIMEOUT",
+        steps,
+        message: "Trace memory budget reached; acceptance is unknown.",
+      };
 
     steps.push({
       step: steps.length,
@@ -95,8 +121,8 @@ export function simulateNFA(
     });
 
     currentStates = closedNextStates;
-    
-    if (currentStates.length === 0) {
+
+    if (currentStates.length === 0 && i === symbols.length - 1) {
       // Fast fail if we reach an empty state set
       return {
         status: "REJECTED",

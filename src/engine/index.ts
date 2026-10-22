@@ -34,3 +34,17 @@ export {
   type DFAStep,
 } from "./dfa/simulate";
 export { validateDFA } from "./dfa/validate";
+export { validateNFA } from "./nfa/validate";
+export { simulateNFA } from "./nfa/simulate";
+export { epsilonClosure } from "./nfa/epsilonClosure";
+export { subsetConstruction } from "./nfa/subsetConstruction";
+export { removeEpsilon } from "./nfa/removeEpsilon";
+export { minimizeDFA } from "./dfa/minimize";
+export { simulatePDA } from "./pda/simulate";
+export { validatePDA } from "./pda/validate";
+export { simulateTM } from "./tm/simulate";
+export { validateTM } from "./tm/validate";
+export { parseRegex, tokenizeRegex } from "./regex/parser";
+export { regexToENFA, thompson } from "./regex/thompson";
+export { productIntersection } from "./common/product";
+export { simulateMachine, type ExecutionStep } from "./simulate";

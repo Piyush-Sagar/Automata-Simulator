@@ -5,7 +5,7 @@ export const SERIALIZATION_VERSION = 1;
 
 export const stateSchema = z.object({
   id: z.string().min(1),
-  label: z.string().min(1),
+  label: z.string(),
   x: z.number().finite(),
   y: z.number().finite(),
   isStart: z.boolean(),
@@ -14,7 +14,7 @@ export const stateSchema = z.object({
 
 const baseAutomatonShape = {
   id: z.string().min(1),
-  name: z.string().min(1),
+  name: z.string(),
   states: z.array(stateSchema),
   alphabet: z.array(z.string().min(1)),
   startState: z.string().nullable(),
@@ -115,7 +115,10 @@ function withDefaultVersion(json: unknown): unknown {
     !Array.isArray(json) &&
     !("version" in json)
   ) {
-    return { ...(json as Record<string, unknown>), version: SERIALIZATION_VERSION };
+    return {
+      ...(json as Record<string, unknown>),
+      version: SERIALIZATION_VERSION,
+    };
   }
   return json;
 }
@@ -132,6 +135,7 @@ export function deserializeAutomaton(json: unknown): AnyAutomaton {
     );
   }
   const { version: _version, ...automaton } = result.data;
+  void _version;
   return automaton;
 }
 

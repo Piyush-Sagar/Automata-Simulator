@@ -25,11 +25,7 @@ describe("validateDFA", () => {
 
   it("flags two transitions for the same state and symbol", () => {
     const dfa = makeDFA({
-      states: [
-        { id: "q0", isStart: true },
-        { id: "q1" },
-        { id: "q2" },
-      ],
+      states: [{ id: "q0", isStart: true }, { id: "q1" }, { id: "q2" }],
       alphabet: ["0", "1"],
       transitions: [
         { from: "q0", to: "q1", symbol: "0" },
@@ -52,10 +48,7 @@ describe("validateDFA", () => {
 
   it("rejects epsilon transitions in a DFA", () => {
     const dfa = makeDFA({
-      states: [
-        { id: "q0", isStart: true },
-        { id: "q1" },
-      ],
+      states: [{ id: "q0", isStart: true }, { id: "q1" }],
       alphabet: ["a"],
       transitions: [{ from: "q0", to: "q1", symbol: "\u03B5" }],
     });
@@ -66,10 +59,7 @@ describe("validateDFA", () => {
 
   it("flags symbols outside the alphabet", () => {
     const dfa = makeDFA({
-      states: [
-        { id: "q0", isStart: true },
-        { id: "q1" },
-      ],
+      states: [{ id: "q0", isStart: true }, { id: "q1" }],
       alphabet: ["a"],
       transitions: [{ from: "q0", to: "q1", symbol: "b" }],
     });
@@ -84,9 +74,9 @@ describe("validateDFA", () => {
       alphabet: ["a"],
       startState: null,
     });
-    expect(noStart === null ? [] : validateDFA(noStart).map((e) => e.type)).toContain(
-      "no-start-state",
-    );
+    expect(
+      noStart === null ? [] : validateDFA(noStart).map((e) => e.type),
+    ).toContain("no-start-state");
 
     const twoFlags = makeDFA({
       states: [
@@ -95,7 +85,9 @@ describe("validateDFA", () => {
       ],
       alphabet: ["a"],
     });
-    expect(validateDFA(twoFlags).map((e) => e.type)).toContain("multiple-start-flags");
+    expect(validateDFA(twoFlags).map((e) => e.type)).toContain(
+      "multiple-start-flags",
+    );
   });
 
   it("flags transitions pointing at missing states", () => {

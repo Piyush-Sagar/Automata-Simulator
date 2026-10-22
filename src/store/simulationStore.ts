@@ -1,71 +1,60 @@
 import { create } from "zustand";
 import type { SimulationResult } from "../engine/types";
-import type { DFAStep } from "../engine/dfa/simulate";
+import type { ExecutionStep } from "../engine/simulate";
 
 type SimulationState = {
   inputString: string;
-  setInputString: (input: string) => void;
-
-  simulationResult: SimulationResult<any> | null;
-  setSimulationResult: (result: SimulationResult<any> | null) => void;
-
+  setInputString: (s: string) => void;
+  simulationResult: SimulationResult<ExecutionStep> | null;
+  setSimulationResult: (r: SimulationResult<ExecutionStep> | null) => void;
   currentStepIndex: number;
-  setCurrentStepIndex: (index: number) => void;
-
+  setCurrentStepIndex: (i: number) => void;
   isPlaying: boolean;
-  setIsPlaying: (isPlaying: boolean) => void;
-
-  playbackSpeed: number; // milliseconds per step
-  setPlaybackSpeed: (speed: number) => void;
-
+  setIsPlaying: (b: boolean) => void;
+  playbackSpeed: number;
+  setPlaybackSpeed: (n: number) => void;
   stepForward: () => void;
   stepBackward: () => void;
   resetSimulation: () => void;
 };
-
 export const useSimulationStore = create<SimulationState>((set, get) => ({
   inputString: "",
-  setInputString: (input) => set({ inputString: input }),
-
-  simulationResult: null as SimulationResult<any> | null,
-  setSimulationResult: (result) =>
+  setInputString: (inputString) =>
     set({
-      simulationResult: result,
+      inputString,
+      simulationResult: null,
+      isPlaying: false,
       currentStepIndex: 0,
+    }),
+  simulationResult: null,
+  setSimulationResult: (simulationResult) =>
+    set({ simulationResult, currentStepIndex: 0, isPlaying: false }),
+  currentStepIndex: 0,
+  setCurrentStepIndex: (i) =>
+    set({
+      currentStepIndex: Math.max(
+        0,
+        Math.min(i, (get().simulationResult?.steps.length ?? 1) - 1),
+      ),
       isPlaying: false,
     }),
-
-  currentStepIndex: 0,
-  setCurrentStepIndex: (index) => set({ currentStepIndex: index }),
-
   isPlaying: false,
-  setIsPlaying: (isPlaying) => set({ isPlaying }),
-
-  playbackSpeed: 1000,
-  setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),
-
+  setIsPlaying: (isPlaying) =>
+    set({ isPlaying: isPlaying && !!get().simulationResult?.steps.length }),
+  playbackSpeed: 700,
+  setPlaybackSpeed: (playbackSpeed) => set({ playbackSpeed }),
   stepForward: () => {
-    const { currentStepIndex, simulationResult, setIsPlaying } = get();
-    if (!simulationResult) return;
-
-    if (currentStepIndex < simulationResult.steps.length - 1) {
-      set({ currentStepIndex: currentStepIndex + 1 });
-    } else {
-      setIsPlaying(false);
-    }
-  },
-
-  stepBackward: () => {
-    const { currentStepIndex } = get();
-    if (currentStepIndex > 0) {
-      set({ currentStepIndex: currentStepIndex - 1 });
-    }
-  },
-
-  resetSimulation: () => {
+    const s = get();
+    const last = Math.max(0, (s.simulationResult?.steps.length ?? 1) - 1);
     set({
-      currentStepIndex: 0,
-      isPlaying: false,
+      currentStepIndex: Math.min(s.currentStepIndex + 1, last),
+      isPlaying: s.isPlaying && s.currentStepIndex + 1 < last,
     });
   },
+  stepBackward: () =>
+    set({
+      currentStepIndex: Math.max(0, get().currentStepIndex - 1),
+      isPlaying: false,
+    }),
+  resetSimulation: () => set({ currentStepIndex: 0, isPlaying: false }),
 }));

@@ -1,10 +1,8 @@
 import { validateDFA } from "../dfa/validate";
+import { validateNFA } from "../nfa/validate";
+import { validatePDA } from "../pda/validate";
+import { validateTM } from "../tm/validate";
 import type { AnyAutomaton } from "../types";
-import {
-  checkTransitionEndpoints,
-  validateAlphabet,
-  validateStructure,
-} from "./sharedChecks";
 
 export interface ValidationError {
   type: string;
@@ -18,27 +16,16 @@ export function formatValidationErrors(errors: ValidationError[]): string {
   return errors.map((e) => e.message).join("\n");
 }
 
-function validateGeneric(automaton: AnyAutomaton): ValidationError[] {
-  return [
-    ...validateStructure(automaton),
-    ...validateAlphabet(automaton),
-    ...checkTransitionEndpoints(
-      automaton,
-      automaton.transitions.map((t) => ({ id: t.id, from: t.from, to: t.to })),
-    ),
-  ];
-}
-
 export function validateAutomaton(automaton: AnyAutomaton): ValidationError[] {
   switch (automaton.type) {
     case "DFA":
       return validateDFA(automaton);
     case "NFA":
     case "ENFA":
-      return validateGeneric(automaton);
+      return validateNFA(automaton);
     case "PDA":
-      return validateGeneric(automaton);
+      return validatePDA(automaton);
     case "TM":
-      return validateGeneric(automaton);
+      return validateTM(automaton);
   }
 }

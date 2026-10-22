@@ -1,8 +1,4 @@
-export type SimulationStatus =
-  | "ACCEPTED"
-  | "REJECTED"
-  | "ERROR"
-  | "TIMEOUT";
+export type SimulationStatus = "ACCEPTED" | "REJECTED" | "ERROR" | "TIMEOUT";
 
 export interface SimulationResult<TStep> {
   status: SimulationStatus;
@@ -13,9 +9,13 @@ export interface SimulationResult<TStep> {
 export interface SimulationLimits {
   maxSteps: number;
   maxInputLength: number;
+  maxConfigurations?: number;
+  maxStackDepth?: number;
 }
 
 export const DEFAULT_SIMULATION_LIMITS: SimulationLimits = {
   maxSteps: 10000,
   maxInputLength: 10000,
+  maxConfigurations: 2000,
+  maxStackDepth: 256,
 };

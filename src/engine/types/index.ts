@@ -5,12 +5,14 @@ import type { TuringMachine } from "./turingMachine";
 
 export type AnyAutomaton = DFA | NFA | ENFA | PDA | TuringMachine;
 
-export type {
-  AutomatonType,
-  BaseAutomaton,
-  State,
+export type { AutomatonType, BaseAutomaton, State } from "./automaton";
+export {
+  EPSILON,
+  findState,
+  isAccepting,
+  startStateOf,
+  stateLabel,
 } from "./automaton";
-export { EPSILON, findState, isAccepting, startStateOf, stateLabel } from "./automaton";
 export type { DFA, DFATransition } from "./dfa";
 export type { ENFA, NFA, NFATransition } from "./nfa";
 export {

@@ -15,9 +15,7 @@ describe("epsilonClosure", () => {
       alphabet: ["0", "1"],
       startState: "q0",
       acceptStates: ["q1"],
-      transitions: [
-        { id: "t1", from: "q0", to: "q1", symbol: "0" },
-      ],
+      transitions: [{ id: "t1", from: "q0", to: "q1", symbol: "0" }],
     };
 
     const closure = epsilonClosure(enfa, ["q0"]);

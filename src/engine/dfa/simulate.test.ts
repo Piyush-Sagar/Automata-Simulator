@@ -117,11 +117,7 @@ describe("simulateDFA", () => {
 
   it("returns ERROR without steps for an invalid configuration (duplicate transitions)", () => {
     const invalid = makeDFA({
-      states: [
-        { id: "q0", isStart: true },
-        { id: "q1" },
-        { id: "q2" },
-      ],
+      states: [{ id: "q0", isStart: true }, { id: "q1" }, { id: "q2" }],
       alphabet: ["0"],
       transitions: [
         { from: "q0", to: "q1", symbol: "0" },
@@ -146,11 +142,10 @@ describe("simulateDFA", () => {
   });
 
   it("times out on inputs longer than the configured limit", () => {
-    const result = simulateDFA(
-      dfa,
-      "1".repeat(11),
-      { maxSteps: 10000, maxInputLength: 10 },
-    );
+    const result = simulateDFA(dfa, "1".repeat(11), {
+      maxSteps: 10000,
+      maxInputLength: 10,
+    });
     expect(result.status).toBe("TIMEOUT");
     expect(result.steps).toHaveLength(0);
   });

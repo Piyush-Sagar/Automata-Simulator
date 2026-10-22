@@ -15,7 +15,9 @@ import type {
 
 let nextId = 0;
 
-export function makeState(overrides: Partial<State> & Pick<State, "id">): State {
+export function makeState(
+  overrides: Partial<State> & Pick<State, "id">,
+): State {
   return {
     label: overrides.id,
     x: 0,
@@ -46,7 +48,9 @@ function makeBase(spec: BaseSpec): Omit<DFA, "type" | "transitions"> {
     states: spec.states.map((s) => makeState(s)),
     alphabet: spec.alphabet,
     startState:
-      spec.startState !== undefined ? spec.startState : spec.states[0]?.id ?? null,
+      spec.startState !== undefined
+        ? spec.startState
+        : (spec.states[0]?.id ?? null),
     acceptStates: spec.acceptStates ?? [],
   };
 }
@@ -62,7 +66,10 @@ export function makeDFA(spec: {
   return {
     ...makeBase(spec),
     type: "DFA",
-    transitions: (spec.transitions ?? []).map((t) => ({ ...t, id: freshId("t") })),
+    transitions: (spec.transitions ?? []).map((t) => ({
+      ...t,
+      id: freshId("t"),
+    })),
   };
 }
 
@@ -77,7 +84,10 @@ export function makeNFA(spec: {
   return {
     ...makeBase(spec),
     type: "NFA",
-    transitions: (spec.transitions ?? []).map((t) => ({ ...t, id: freshId("t") })),
+    transitions: (spec.transitions ?? []).map((t) => ({
+      ...t,
+      id: freshId("t"),
+    })),
   };
 }
 
@@ -92,7 +102,10 @@ export function makeENFA(spec: {
   return {
     ...makeBase(spec),
     type: "ENFA",
-    transitions: (spec.transitions ?? []).map((t) => ({ ...t, id: freshId("t") })),
+    transitions: (spec.transitions ?? []).map((t) => ({
+      ...t,
+      id: freshId("t"),
+    })),
   };
 }
 
@@ -110,7 +123,10 @@ export function makePDA(spec: {
   return {
     ...makeBase(spec),
     type: "PDA",
-    transitions: (spec.transitions ?? []).map((t) => ({ ...t, id: freshId("t") })),
+    transitions: (spec.transitions ?? []).map((t) => ({
+      ...t,
+      id: freshId("t"),
+    })),
     stackAlphabet: spec.stackAlphabet ?? ["A", "B"],
     initialStackSymbol: spec.initialStackSymbol ?? INITIAL_STACK_SYMBOL,
     acceptanceMode: spec.acceptanceMode ?? "FINAL_STATE",
@@ -130,7 +146,10 @@ export function makeTM(spec: {
   return {
     ...makeBase(spec),
     type: "TM",
-    transitions: (spec.transitions ?? []).map((t) => ({ ...t, id: freshId("t") })),
+    transitions: (spec.transitions ?? []).map((t) => ({
+      ...t,
+      id: freshId("t"),
+    })),
     blankSymbol: spec.blankSymbol ?? TM_BLANK,
     rejectState: spec.rejectState ?? null,
   };

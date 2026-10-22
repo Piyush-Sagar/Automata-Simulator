@@ -35,7 +35,10 @@ describe("serialization", () => {
 
   it("parses NFA, ENFA, PDA and TM payloads via the discriminated union", () => {
     const nfa = makeNFA({
-      states: [{ id: "q0", isStart: true }, { id: "q1", isAccept: true }],
+      states: [
+        { id: "q0", isStart: true },
+        { id: "q1", isAccept: true },
+      ],
       alphabet: ["a"],
       acceptStates: ["q1"],
       transitions: [
@@ -44,22 +47,47 @@ describe("serialization", () => {
       ],
     });
     const enfa = makeENFA({
-      states: [{ id: "q0", isStart: true }, { id: "q1", isAccept: true }],
+      states: [
+        { id: "q0", isStart: true },
+        { id: "q1", isAccept: true },
+      ],
       alphabet: ["a"],
       acceptStates: ["q1"],
       transitions: [{ from: "q0", to: "q1", symbol: "\u03B5" }],
     });
     const pda = makePDA({
-      states: [{ id: "q0", isStart: true }, { id: "q1", isAccept: true }],
+      states: [
+        { id: "q0", isStart: true },
+        { id: "q1", isAccept: true },
+      ],
       alphabet: ["a"],
       acceptStates: ["q1"],
-      transitions: [{ from: "q0", to: "q1", inputSymbol: "a", stackTop: "Z", stackReplacement: ["A", "Z"] }],
+      transitions: [
+        {
+          from: "q0",
+          to: "q1",
+          inputSymbol: "a",
+          stackTop: "Z",
+          stackReplacement: ["A", "Z"],
+        },
+      ],
     });
     const tm = makeTM({
-      states: [{ id: "q0", isStart: true }, { id: "halt", isAccept: true }],
+      states: [
+        { id: "q0", isStart: true },
+        { id: "halt", isAccept: true },
+      ],
       alphabet: ["0", "1"],
       acceptStates: ["halt"],
-      transitions: [{ from: "q0", to: "halt", readSymbol: "0", writeSymbol: "1", direction: "R" }],
+      transitions: [
+        {
+          from: "q0",
+          to: "halt",
+          readSymbol: "0",
+          writeSymbol: "1",
+          direction: "R",
+        },
+      ],
     });
 
     expect(deserializeAutomaton(nfa).type).toBe("NFA");
@@ -78,7 +106,10 @@ describe("serialization", () => {
   });
 
   it("rejects an unsupported version with a readable error", () => {
-    const dfa = { ...makeDFA({ states: [{ id: "q0" }], alphabet: [] }), version: 99 };
+    const dfa = {
+      ...makeDFA({ states: [{ id: "q0" }], alphabet: [] }),
+      version: 99,
+    };
     expect(() => deserializeAutomaton(dfa)).toThrow(SerializationError);
     expect(() => deserializeAutomaton(dfa)).toThrow(/version/i);
   });

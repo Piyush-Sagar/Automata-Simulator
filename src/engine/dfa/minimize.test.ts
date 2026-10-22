@@ -37,14 +37,14 @@ describe("minimizeDFA", () => {
       const { dfa: minDFA, trace } = result;
       // It should merge {q0, q2} and {q1, q3} resulting in 2 states
       expect(minDFA.states.length).toBe(2);
-      
+
       const p1 = trace.mapping.get(minDFA.states[0].id)?.sort();
       const p2 = trace.mapping.get(minDFA.states[1].id)?.sort();
-      
+
       const partitions = [p1, p2].sort((a, b) => a![0].localeCompare(b![0]));
       expect(partitions).toEqual([
         ["q0", "q2"],
-        ["q1", "q3"]
+        ["q1", "q3"],
       ]);
     }
   });

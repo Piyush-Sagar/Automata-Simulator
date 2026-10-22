@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { subsetConstruction } from "../subsetConstruction";
-import { EPSILON, type ENFA } from "../../types";
+import { type NFA } from "../../types";
 
 describe("subsetConstruction", () => {
   it("should convert a basic NFA to a DFA correctly", () => {
     // NFA that accepts strings ending in '1'
-    const nfa: ENFA = {
+    const nfa: NFA = {
       id: "1",
       name: "Ends with 1",
       type: "NFA",
@@ -30,14 +30,17 @@ describe("subsetConstruction", () => {
       const { dfa, trace } = result;
       // Should have 2 states: {q0} and {q0, q1}
       expect(dfa.states.length).toBe(2);
-      
+
       // The start state should map to {q0}
       expect(trace.mapping.get(dfa.startState!)?.sort()).toEqual(["q0"]);
-      
+
       // There should be exactly one accepting state, mapping to {q0, q1}
       expect(dfa.acceptStates.length).toBe(1);
-      expect(trace.mapping.get(dfa.acceptStates[0])?.sort()).toEqual(["q0", "q1"]);
-      
+      expect(trace.mapping.get(dfa.acceptStates[0])?.sort()).toEqual([
+        "q0",
+        "q1",
+      ]);
+
       // Check transitions
       expect(dfa.transitions.length).toBe(4); // 2 states * 2 symbols
     }

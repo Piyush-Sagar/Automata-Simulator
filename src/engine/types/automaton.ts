@@ -21,7 +21,10 @@ export interface BaseAutomaton {
   acceptStates: string[];
 }
 
-export function findState(automaton: BaseAutomaton, stateId: string): State | undefined {
+export function findState(
+  automaton: BaseAutomaton,
+  stateId: string,
+): State | undefined {
   return automaton.states.find((s) => s.id === stateId);
 }
 
