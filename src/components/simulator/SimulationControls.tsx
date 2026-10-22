@@ -7,6 +7,11 @@ import {
   SkipForward,
   RotateCcw,
   Square,
+  Activity,
+  CheckCircle2,
+  XCircle,
+  Clock3,
+  Circle,
 } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useAutomataStore } from "../../store/automataStore";
@@ -43,8 +48,30 @@ export function SimulationControls() {
   const symbols = Array.from(s.inputString);
   const page = Math.floor(s.currentStepIndex / 100),
     slice = result?.steps.slice(page * 100, page * 100 + 100) ?? [];
+  const StatusIcon =
+    result?.status === "ACCEPTED"
+      ? CheckCircle2
+      : result?.status === "REJECTED" || result?.status === "ERROR"
+        ? XCircle
+        : result?.status === "TIMEOUT"
+          ? Clock3
+          : Circle;
   return (
     <section className="simulation-dock" aria-label="Simulation controls">
+      <div className="simulation-heading">
+        <h2>
+          <Activity size={17} aria-hidden="true" /> Simulation
+        </h2>
+        <div
+          className={`result-badge ${result?.status.toLowerCase() ?? "idle"}`}
+          role="status"
+        >
+          <StatusIcon size={14} aria-hidden="true" />
+          {result
+            ? result.status.charAt(0) + result.status.slice(1).toLowerCase()
+            : "Ready"}
+        </div>
+      </div>
       <div className="simulation-top">
         <div className="simulation-input">
           <label htmlFor="sim-input" className="eyebrow">
@@ -55,7 +82,8 @@ export function SimulationControls() {
               id="sim-input"
               value={s.inputString}
               onChange={(e) => s.setInputString(e.target.value)}
-              placeholder="Enter input · empty input is allowed"
+              placeholder="Enter input"
+              aria-describedby="input-hint"
               onKeyDown={(e) => {
                 if (e.key === "Enter") runCurrentMachine();
               }}
@@ -65,6 +93,9 @@ export function SimulationControls() {
               Run
             </button>
           </div>
+          <span id="input-hint" className="field-help">
+            Leave blank for empty input (ε).
+          </span>
         </div>
         <div className="transport">
           <button
@@ -126,13 +157,25 @@ export function SimulationControls() {
             <option value={250}>Fast</option>
           </select>
         </label>
-        <div
-          className={`result-badge ${result?.status.toLowerCase() ?? "idle"}`}
-          role="status"
-        >
-          {result?.status ?? "READY TO RUN"}
-        </div>
       </div>
+      {step && result && (
+        <div className="step-scrubber">
+          <label htmlFor="simulation-step">
+            Step {s.currentStepIndex}{" "}
+            <span className="muted">of {result.steps.length - 1}</span>
+          </label>
+          <input
+            id="simulation-step"
+            aria-label="Simulation step"
+            type="range"
+            min={0}
+            max={Math.max(0, result.steps.length - 1)}
+            value={s.currentStepIndex}
+            disabled={result.steps.length < 2}
+            onChange={(e) => s.setCurrentStepIndex(Number(e.target.value))}
+          />
+        </div>
+      )}
       {!result ? (
         <p className="simulation-empty">
           Enter input and click Run to view the execution trace.

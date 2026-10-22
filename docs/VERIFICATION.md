@@ -78,3 +78,19 @@ tests, not exhaustive browser or formal verification. PNG/SVG export has a finit
 pixel budget. SVG contains foreignObject and is intended as an image; JSON is the
 editable format. Execution is bounded and synchronous, suitable for educational
 machines. No cloud synchronization or hosted deployment is configured.
+
+## Interface refresh — 2026-10-22
+
+- Applied the UI/UX Pro Max minimal workspace guidance. The selected design rules
+  are recorded in `design-system/automata-studio/MASTER.md`.
+- Inspected light and dark themes, 375px mobile content, a 768px tablet viewport,
+  landscape, and the normal desktop layout. Checked conversion and library reflow
+  with no horizontal page overflow. Compact conversion controls fit within their
+  toolbar at a 908px desktop content width.
+- Checked the new simulation slider with the keyboard: End selects configuration
+  4/4, updates the input tape, and highlights the accepting states. Closing the
+  mobile properties drawer returns focus to its toggle.
+- Measured theme token contrast: muted text on surfaces is 5.39:1 in light mode
+  and 7.35:1 in dark mode; primary button text is 7.13:1 and 9.81:1 respectively.
+- Reran the 99 existing tests, lint, formatting, and production compilation. Motion
+  effects remain covered by the existing reduced-motion CSS override.

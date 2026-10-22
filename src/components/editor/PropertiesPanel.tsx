@@ -2,11 +2,13 @@
 import { useAutomataStore } from "../../store/automataStore";
 import { transitionLabel } from "./AutomataCanvas";
 import type { TransitionDraft } from "./TransitionDialog";
-import { ArrowRight, Plus, Trash2 } from "lucide-react";
+import { ArrowRight, Plus, Trash2, X } from "lucide-react";
 export function PropertiesPanel({
   onTransition,
+  onClose,
 }: {
   onTransition: (draft: TransitionDraft) => void;
+  onClose: () => void;
 }) {
   const {
     automaton: a,
@@ -33,8 +35,14 @@ export function PropertiesPanel({
   return (
     <aside className="properties-panel" aria-label="Machine properties">
       <div className="panel-heading">
-        <span className="eyebrow">INSPECTOR</span>
-        <span className="pill">{a.type === "ENFA" ? "ε-NFA" : a.type}</span>
+        <span className="panel-title">Properties</span>
+        <button
+          className="icon-button inspector-close"
+          aria-label="Close inspector"
+          onClick={onClose}
+        >
+          <X size={17} aria-hidden="true" />
+        </button>
       </div>
       <section>
         <h2>

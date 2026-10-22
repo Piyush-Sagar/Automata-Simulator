@@ -239,15 +239,18 @@ export function Studio({ view = "editor" }: { view?: StudioView }) {
           <span className="brand-mark">
             <GitBranch size={22} />
           </span>
-          <span>
-            automata<span className="brand-sub"> / studio</span>
-          </span>
-          <span className="version">01</span>
+          <span>automata</span>
+          <span className="brand-sub">Studio</span>
         </Link>
         <nav aria-label="Main navigation">
           {nav.map(({ id, href, title, Icon }) => (
-            <Link key={id} href={href} className={view === id ? "active" : ""}>
-              <Icon size={15} />
+            <Link
+              key={id}
+              href={href}
+              className={view === id ? "active" : ""}
+              aria-current={view === id ? "page" : undefined}
+            >
+              <Icon size={16} aria-hidden="true" />
               {title}
             </Link>
           ))}
@@ -282,7 +285,6 @@ export function Studio({ view = "editor" }: { view?: StudioView }) {
       </header>
       <div className="document-bar">
         <div className="document-title">
-          <span className="status-dot" />
           <DocumentTitle>
             {a.automaton.name || "Untitled machine"}
           </DocumentTitle>
@@ -291,7 +293,7 @@ export function Studio({ view = "editor" }: { view?: StudioView }) {
           </span>
           <span className="autosave">
             <Check size={12} />
-            Local autosave
+            Saved locally
           </span>
         </div>
         <div className="document-actions">
@@ -314,15 +316,18 @@ export function Studio({ view = "editor" }: { view?: StudioView }) {
             <Save size={15} />
             Save
           </button>
-          <button
-            className="icon-button inspector-toggle"
-            aria-label="Toggle inspector"
-            aria-expanded={inspector}
-            aria-controls="machine-inspector"
-            onClick={() => setInspector(!inspector)}
-          >
-            <Menu size={18} />
-          </button>
+          {(view === "editor" || view === "simulator") && (
+            <button
+              id="inspector-toggle"
+              className="icon-button inspector-toggle"
+              aria-label="Toggle inspector"
+              aria-expanded={inspector}
+              aria-controls="machine-inspector"
+              onClick={() => setInspector(!inspector)}
+            >
+              <Menu size={18} aria-hidden="true" />
+            </button>
+          )}
         </div>
       </div>
       <input
@@ -393,7 +398,13 @@ export function Studio({ view = "editor" }: { view?: StudioView }) {
                 id="machine-inspector"
                 className={inspector ? "inspector-wrap open" : "inspector-wrap"}
               >
-                <PropertiesPanel onTransition={onTransition} />
+                <PropertiesPanel
+                  onTransition={onTransition}
+                  onClose={() => {
+                    setInspector(false);
+                    document.getElementById("inspector-toggle")?.focus();
+                  }}
+                />
               </div>
             </div>
             <SimulationControls />

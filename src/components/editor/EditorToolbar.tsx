@@ -23,7 +23,8 @@ export function EditorToolbar({
     <div className="editor-toolbar">
       <div className="toolbar-tools">
         <button
-          className="button primary"
+          className="button tool-create"
+          title="Add a state"
           onClick={() => {
             const rect = document
               .querySelector(".automata-canvas")
@@ -36,7 +37,7 @@ export function EditorToolbar({
           }}
         >
           <Plus size={16} />
-          State
+          Add state
         </button>
         <button
           className="button"
@@ -96,11 +97,13 @@ export function EditorToolbar({
       </div>
       <button
         className="button convert-action"
+        title="Convert / minimize"
         disabled={["PDA", "TM"].includes(a.automaton.type)}
         onClick={onConvert}
       >
         <ArrowRightLeft size={15} />
-        Convert / minimize
+        <span className="convert-label">Convert / minimize</span>
+        <span className="convert-label-short">Convert</span>
       </button>
     </div>
   );
