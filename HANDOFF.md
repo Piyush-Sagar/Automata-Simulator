@@ -1,5 +1,22 @@
 # Current handoff — Automata Studio
 
+## API and ChatGPT integration — 2026-11-11
+
+Added 28 shared operations under `/api/v1/{operation}`, generated OpenAPI at
+`/api/v1/openapi.json`, schema discovery at `/api/v1/capabilities`, and a stateless
+MCP endpoint at `/api/mcp`. The plugin/skill and desktop stdio bridge are packaged
+under `integrations/chatgpt/`. See `docs/API.md` for coverage and connection setup.
+
+Private server library/draft/settings require `AUTOMATA_API_KEY` and persistent
+disk (`AUTOMATA_DATA_DIR`, default ignored `.automata-data`). They are separate
+from browser storage. Anonymous MCP tools expose computations only. No OAuth,
+multi-user authorization, hosted deployment or plugin-directory publication was
+added. Browser presentation behavior remains in the existing client.
+
+Validation: 127 tests, lint, typecheck, formatting and production build pass.
+Live production verification covers HTTP operations, HTTP/stdio MCP tool calls,
+the Python client, real PNG export and published plugin-manifest schemas.
+
 Updated 2026-10-22 after the user's request to complete the project.
 
 The implementation now covers the remaining scope reconstructed from the original

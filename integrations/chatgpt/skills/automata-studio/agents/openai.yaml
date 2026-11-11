@@ -1,0 +1,4 @@
+interface:
+  display_name: "Automata Studio"
+  short_description: "Build, simulate and convert automata using real traces"
+  default_prompt: "Use $automata-studio to build a DFA for strings ending in 01 and test it."

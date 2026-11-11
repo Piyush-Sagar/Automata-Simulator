@@ -10,10 +10,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "mcp": "node integrations/chatgpt/scripts/server.mjs",
+    "test:api": "node scripts/verify-api.mjs",
     "format": "prettier --write src README.md PLAN.md HANDOFF.md",
     "format:check": "prettier --check src README.md PLAN.md HANDOFF.md"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "@xyflow/react": "^12.11.3",
     "framer-motion": "^13.1.1",
     "html-to-image": "^1.11.13",
@@ -21,6 +24,7 @@
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "sharp": "^0.35.5",
     "zod": "^4.4.3",
     "zustand": "^5.0.15"
   },

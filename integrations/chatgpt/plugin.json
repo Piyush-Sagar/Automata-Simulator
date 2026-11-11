@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "automata-studio",
+  "version": "1.0.0",
+  "description": "Build, simulate, convert and export finite automata, pushdown automata and Turing machines.",
+  "author": { "name": "Piyush Sagar" },
+  "repository": "https://github.com/Piyush-Sagar/Automata-Simulator",
+  "keywords": ["automata", "theory-of-computation", "education"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Automata Studio",
+        "shortDescription": "Build and run automata with real execution traces",
+        "longDescription": "Edit DFA, NFA, epsilon-NFA, PDA and Turing machines; inspect real traces; convert regex and finite machines; export diagrams; manage a configured server library.",
+        "developerName": "Piyush Sagar",
+        "category": "Developer Tools",
+        "capabilities": ["Read", "Write"],
+        "defaultPrompt": [
+          "Build a DFA for binary strings ending in 01 and test 1101."
+        ]
+      }
+    }
+  }
+}

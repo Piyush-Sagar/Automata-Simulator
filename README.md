@@ -33,23 +33,29 @@ pnpm dev
 ```
 
 Open `http://localhost:3000`. There are no API keys, environment variables,
-databases or external account connections to configure. Simulation and storage
-run in your browser. After installing dependencies, the app does not require
+databases or external account connections to configure for the browser editor.
+Its simulation and storage run in your browser. After installing dependencies, the app does not require
 external fonts or services.
+
+The server also provides a versioned API and a ChatGPT skill/plugin package for
+editing, simulation, conversions, exports and an optional authenticated server
+library. Start at `/api/v1/capabilities` or read [API and ChatGPT setup](docs/API.md).
 
 ## 3. Commands
 
-| Command             | Purpose                                                   |
-| ------------------- | --------------------------------------------------------- |
-| `pnpm dev`          | Development server                                        |
-| `pnpm build`        | Production compilation and static route generation        |
-| `pnpm start`        | Serve the production build                                |
-| `pnpm test`         | Run engine, document-history and storage regression tests |
-| `pnpm test:watch`   | Watch tests during development                            |
-| `pnpm lint`         | ESLint                                                    |
-| `pnpm typecheck`    | TypeScript without emitting files                         |
-| `pnpm format`       | Format sources and current documentation                  |
-| `pnpm format:check` | Check formatting                                          |
+| Command             | Purpose                                                      |
+| ------------------- | ------------------------------------------------------------ |
+| `pnpm dev`          | Development server                                           |
+| `pnpm build`        | Production compilation and static route generation           |
+| `pnpm start`        | Serve the production build                                   |
+| `pnpm test`         | Run engine, document-history and storage regression tests    |
+| `pnpm test:watch`   | Watch tests during development                               |
+| `pnpm test:api`     | Verify a running API, ChatGPT connections and plugin package |
+| `pnpm mcp`          | Start the desktop MCP bridge (requires a running API)        |
+| `pnpm lint`         | ESLint                                                       |
+| `pnpm typecheck`    | TypeScript without emitting files                            |
+| `pnpm format`       | Format sources and current documentation                     |
+| `pnpm format:check` | Check formatting                                             |
 
 ## 4. Build and edit a machine
 
@@ -228,6 +234,8 @@ src/components/simulator/  Playback, input, trace, real stack/tape views
 src/components/conversion/ Inspectable conversion pipeline and formal product
 src/components/ui/         Native modal dialog wrapper
 src/engine/                Models, validation, algorithms, templates and tests
+src/api/                   Shared API schemas, operations, exports and storage
+integrations/chatgpt/      Plugin, skill, desktop bridge and GPT instructions
 src/store/                 Document/history, playback, preferences/library stores
 src/lib/storage.ts         Versioned browser storage and file downloads
 ```
@@ -264,6 +272,8 @@ localStorage for persistence. Algorithms run synchronously within explicit
 budgets, intended for educational-scale machines. Automated unit tests and manual
 browser checks do not constitute exhaustive testing of every browser or machine.
 
-All routes are prerendered by the production build. Deploy using a compatible
-Next.js host or serve with `pnpm start`. No hosted deployment or Git remote has
-been configured in this repository. No license has been chosen for this project.
+UI routes are prerendered; `/api/v1/*` and `/api/mcp` run on the Node.js server.
+Deploy using a compatible Next.js host or serve with `pnpm start`. Private API
+storage needs an API key and persistent disk. Source is published at
+[Piyush-Sagar/Automata-Simulator](https://github.com/Piyush-Sagar/Automata-Simulator).
+No license has been chosen for this project.
