@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+.project-info h2 {
+  margin: 2rem 0 0.65rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.project-info p {
+  margin: 0 0 1rem;
+}
+
 /* Shared workspace tokens. Keep light and dark surfaces paired. */
 :root {
   --background: #f4f5f4;

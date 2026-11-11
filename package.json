@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "mcp": "node integrations/chatgpt/scripts/server.mjs",
     "test:api": "node scripts/verify-api.mjs",
+    "package:plugin": "node scripts/package-plugin.mjs",
     "format": "prettier --write src README.md PLAN.md HANDOFF.md",
     "format:check": "prettier --check src README.md PLAN.md HANDOFF.md"
   },

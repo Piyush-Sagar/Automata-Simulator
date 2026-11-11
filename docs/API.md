@@ -175,6 +175,8 @@ The package follows the official [plugin packaging guide](https://developers.ope
 and [MCP server guide](https://developers.openai.com/plugins/build/mcp-server).
 Publishing source to GitHub does not register, install, submit, or approve the
 plugin in ChatGPT's directory, nor does GitHub host this Next.js API.
+See [public directory release preparation](PUBLIC-PLUGIN.md) for listing assets,
+submission packaging, identity verification and hosting requirements.
 
 ## Custom GPT Actions
 

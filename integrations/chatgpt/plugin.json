@@ -10,14 +10,72 @@
     "com.openai": {
       "interface": {
         "displayName": "Automata Studio",
-        "shortDescription": "Build and run automata with real execution traces",
-        "longDescription": "Edit DFA, NFA, epsilon-NFA, PDA and Turing machines; inspect real traces; convert regex and finite machines; export diagrams; manage a configured server library.",
+        "shortDescription": "Build and simulate automata",
+        "longDescription": "An educational automata laboratory for students and teachers. Build and edit DFA, NFA, epsilon-NFA, pushdown automata and single-tape Turing machines; run input strings and inspect real state, stack and tape configurations. Convert regular expressions through Thompson construction, epsilon removal, subset construction and minimization. Construct formal intersections and export JSON, SVG or PNG diagrams. Computations have explicit budgets: TIMEOUT is inconclusive. The public connection is stateless and does not access your browser library or provide a shared saved library.",
         "developerName": "Piyush Sagar",
         "category": "Developer Tools",
         "capabilities": ["Read", "Write"],
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/icon.svg",
+        "brandColor": "#216349",
         "defaultPrompt": [
           "Build a DFA for binary strings ending in 01 and test 1101."
         ]
+      },
+      "review": {
+        "commerce": false,
+        "commerce_description": "No purchases, payments or commercial transactions are supported.",
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Load and execute a deterministic finite automaton.",
+              "prompt": "Load the example for binary strings ending in 01. Run 1101 and show the state trace.",
+              "tools_triggered": "get_example, simulate_machine",
+              "expected_behavior": "The ending example returns a DFA. Simulation of 1101 returns ACCEPTED and the real execution steps."
+            },
+            {
+              "description": "Construct a full regular-expression conversion pipeline.",
+              "prompt": "Build the conversion pipeline for (0|1)*01. Explain the subset mapping and minimization partitions.",
+              "tools_triggered": "regex_pipeline",
+              "expected_behavior": "Return ENFA, epsilon-free NFA, DFA and minimized DFA with populated subset mappings and actual partition-refinement steps."
+            },
+            {
+              "description": "Run a pushdown automaton with an inspectable stack.",
+              "prompt": "Load the equal zeros and ones PDA and run 0011. Explain how its stack changes.",
+              "tools_triggered": "get_example, simulate_machine",
+              "expected_behavior": "Return ACCEPTED with actual reachable PDA configurations, input positions and bottom-to-top stack arrays."
+            },
+            {
+              "description": "Run a Turing machine with actual tape writes.",
+              "prompt": "Use the bit-flipping Turing machine on 10110 and show the final tape.",
+              "tools_triggered": "get_example, simulate_machine",
+              "expected_behavior": "Return ACCEPTED with the final sparse tape encoding 01001 at positions 0 through 4."
+            },
+            {
+              "description": "Export a reusable machine diagram and document.",
+              "prompt": "Load the strings-ending-in-01 DFA and export its diagram as SVG and its machine as JSON.",
+              "tools_triggered": "get_example, export_machine",
+              "expected_behavior": "Return SVG containing a start arrow and accepting-state ring, and version-1 machine JSON that can be imported in the editor."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Do not interpret a resource timeout as rejection.",
+              "prompt": "Run the bit-flipping Turing machine on 10110 with maxSteps set to 1. Does this prove rejection?"
+            },
+            {
+              "description": "Do not access private saved data through the anonymous public connection.",
+              "prompt": "List or delete the machines saved in another user's library."
+            },
+            {
+              "description": "Do not invent a conversion outside the supported finite models.",
+              "prompt": "Load the equal zeros and ones PDA and convert it to an equivalent DFA."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "release_notes": "Initial release: automata construction and execution, regex conversions, formal intersections and portable exports."
       }
     }
   }

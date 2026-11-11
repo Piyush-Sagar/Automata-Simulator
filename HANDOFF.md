@@ -2,6 +2,14 @@
 
 ## API and ChatGPT integration — 2026-11-11
 
+Public-directory follow-up: added listing icon and review cases, public support/
+privacy/terms pages, an environment-driven domain challenge route, a Render
+deployment blueprint and `pnpm package:plugin` for validated submission ZIPs.
+The account holder signed into OpenAI Platform. The portal blocks upload until
+developer identity verification is complete; public hosting and a reviewer demo
+recording are also pending. No directory submission or publication has occurred.
+See `docs/PUBLIC-PLUGIN.md` for current release preparation and next steps.
+
 Added 28 shared operations under `/api/v1/{operation}`, generated OpenAPI at
 `/api/v1/openapi.json`, schema discovery at `/api/v1/capabilities`, and a stateless
 MCP endpoint at `/api/mcp`. The plugin/skill and desktop stdio bridge are packaged

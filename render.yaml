@@ -1,0 +1,13 @@
+# Stateless public deployment. Private storage stays disabled unless an operator
+# explicitly configures its key and durable disk on a suitable plan.
+services:
+  - type: web
+    name: automata-studio
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm build
+    startCommand: pnpm start --hostname 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.18.1

@@ -40,6 +40,7 @@ external fonts or services.
 The server also provides a versioned API and a ChatGPT skill/plugin package for
 editing, simulation, conversions, exports and an optional authenticated server
 library. Start at `/api/v1/capabilities` or read [API and ChatGPT setup](docs/API.md).
+Public directory release preparation is tracked in [Public plugin submission](docs/PUBLIC-PLUGIN.md).
 
 ## 3. Commands
 
